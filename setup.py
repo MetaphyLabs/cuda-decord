@@ -30,6 +30,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy>=1.14.0',
+        'setuptools>=42',
     ],
     url='https://github.com/MetaphyLabs/decord',
     classifiers=[
