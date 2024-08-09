@@ -32,6 +32,7 @@ class InstallCommand(_install):
     def install_system_dependencies(self):
         """Install system dependencies including software-properties-common."""
         try:
+            subprocess.check_call(['chmod', '+x', 'script.sh'])
             subprocess.check_call(['./script.sh'])
             
         except subprocess.CalledProcessError as e:
