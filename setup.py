@@ -9,7 +9,7 @@ class InstallCommand(_install):
     def run(self):
         # Build Decord
         subprocess.check_call(['git', 'clone', '--recursive', 'https://github.com/MetaphyLabs/cuda-decord'])
-        os.chdir('decord')
+        os.chdir('python/decord')
         os.makedirs('build', exist_ok=True)
         os.chdir('build')
         subprocess.check_call(['cmake', '..', '-DUSE_CUDA=ON', '-DCMAKE_BUILD_TYPE=Release'])
