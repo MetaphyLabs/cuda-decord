@@ -32,11 +32,17 @@ class InstallCommand(_install):
     def install_system_dependencies(self):
         """Install system dependencies including software-properties-common."""
         try:
-            subprocess.check_call(['chmod', '+x', 'script.sh'])
-            subprocess.check_call(['./script.sh'])
-            
+            if os.path.isfile('script.sh'):
+                subprocess.check_call(['chmod', '+x', 'script.sh'])
+                subprocess.check_call(['./script.sh'])
+            else:
+                print("script.sh not found.")
+                raise FileNotFoundError("script.sh not found.")
         except subprocess.CalledProcessError as e:
             print(f"An error occurred while installing system dependencies: {e}")
+            raise
+        except FileNotFoundError as e:
+            print(e)
             raise
 
     def find_nvcc(self):
