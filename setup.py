@@ -8,10 +8,14 @@ from setuptools.command.install import install as _install
 class InstallCommand(_install):
     def run(self):
         # Install system dependencies
-        subprocess.check_call([ 'add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
-        subprocess.check_call([ 'apt-get', 'update'])
+        subprocess.check_call(['add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
+        subprocess.check_call(['apt-get', 'update'])
         subprocess.check_call(['apt-get', 'install', '-y', 'build-essential', 'python3-dev', 'python3-setuptools', 'make', 'cmake'])
-        subprocess.check_call([ 'apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
+        subprocess.check_call(['apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
+
+        # Install CUDA dependencies
+        cuda_path = self.find_nvcc()
+        self.set_cuda_environment_variable(cuda_path)
 
         # Build Decord
         subprocess.check_call(['git', 'clone', '--recursive', 'https://github.com/dmlc/decord'])
@@ -19,7 +23,7 @@ class InstallCommand(_install):
         os.makedirs('build', exist_ok=True)
         os.chdir('build')
         
-        subprocess.check_call(['cmake', '..', '-DUSE_CUDA=OFF', '-DCMAKE_BUILD_TYPE=Release'])
+        subprocess.check_call(['cmake', '..', '-DUSE_CUDA=ON', '-DCMAKE_BUILD_TYPE=Release'])
         subprocess.check_call(['make'])
         
         # Install Decord Python Package
@@ -27,6 +31,31 @@ class InstallCommand(_install):
         subprocess.check_call(['python3', 'setup.py', 'install', '--user'])
 
         _install.run(self)
+
+    def find_nvcc(self):
+        """Find the nvcc compiler."""
+        try:
+            result = subprocess.run(['which', 'nvcc'], capture_output=True, text=True, check=True)
+            nvcc_path = result.stdout.strip()
+            if nvcc_path:
+                return nvcc_path
+        except subprocess.CalledProcessError:
+            pass
+        
+        # If `which` didn't find `nvcc`, search common installation directories
+        common_paths = ['/usr/local/cuda/bin/nvcc', '/usr/local/cuda/bin']
+        for path in common_paths:
+            if os.path.isfile(path):
+                return path
+        return None
+
+    def set_cuda_environment_variable(self, nvcc_path):
+        """Set the CUDACXX environment variable."""
+        if nvcc_path:
+            os.environ['CUDACXX'] = nvcc_path
+            print(f"Set CUDACXX environment variable to: {nvcc_path}")
+        else:
+            print("Cannot set CUDACXX environment variable because nvcc was not found.")
 
 setup(
     name='decord',
