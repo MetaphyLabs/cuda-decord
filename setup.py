@@ -34,10 +34,10 @@ class InstallCommand(_install):
         try:
             subprocess.check_call(['apt-get', 'update'])
             subprocess.check_call(['apt-get', 'install', '-y', 'software-properties-common'])
-            subprocess.check_call(['add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
-            subprocess.check_call(['apt-get', 'update'])
-            subprocess.check_call(['apt-get', 'install', '-y', 'build-essential', 'python3-dev', 'python3-setuptools', 'make', 'cmake'])
-            subprocess.check_call(['apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
+            subprocess.check_call(['sudo','add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
+            subprocess.check_call(['sudo','apt-get', 'update'])
+            subprocess.check_call(['sudo','apt-get', 'install', '-y', 'build-essential', 'python3-dev', 'python3-setuptools', 'make', 'cmake'])
+            subprocess.check_call(['sudo','apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
         except subprocess.CalledProcessError as e:
             print(f"An error occurred while installing system dependencies: {e}")
             raise
