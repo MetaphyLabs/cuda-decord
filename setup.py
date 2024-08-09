@@ -8,11 +8,8 @@ from setuptools.command.install import install as _install
 class InstallCommand(_install):
     def run(self):
         # Install system dependencies
-        subprocess.check_call(['add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
-        subprocess.check_call(['apt-get', 'update'])
-        subprocess.check_call(['apt-get', 'install', '-y', 'build-essential', 'python3-dev', 'python3-setuptools', 'make', 'cmake'])
-        subprocess.check_call(['apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
-
+        self.install_system_dependencies()
+        
         # Install CUDA dependencies
         cuda_path = self.find_nvcc()
         self.set_cuda_environment_variable(cuda_path)
@@ -31,6 +28,19 @@ class InstallCommand(_install):
         subprocess.check_call(['python3', 'setup.py', 'install', '--user'])
 
         _install.run(self)
+
+    def install_system_dependencies(self):
+        """Install system dependencies including software-properties-common."""
+        try:
+            subprocess.check_call(['apt-get', 'update'])
+            subprocess.check_call(['apt-get', 'install', '-y', 'software-properties-common'])
+            subprocess.check_call(['add-apt-repository', 'ppa:jonathonf/ffmpeg-4'])
+            subprocess.check_call(['apt-get', 'update'])
+            subprocess.check_call(['apt-get', 'install', '-y', 'build-essential', 'python3-dev', 'python3-setuptools', 'make', 'cmake'])
+            subprocess.check_call(['apt-get', 'install', '-y', 'ffmpeg', 'libavcodec-dev', 'libavfilter-dev', 'libavformat-dev', 'libavutil-dev'])
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred while installing system dependencies: {e}")
+            raise
 
     def find_nvcc(self):
         """Find the nvcc compiler."""
